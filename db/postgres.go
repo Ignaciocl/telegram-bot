@@ -69,8 +69,8 @@ func (p *postgresDb[T]) Get(key int) (T, error) {
 	return data, nil
 }
 
-func CreateDB[T Storable](name string, table string) (DB[T], error) {
-	db, err := sql.Open("postgres", fmt.Sprintf("postgresql://postgres:postgres@localhost:5432/%s?sslmode=disable", name))
+func CreateDB[T Storable](name string, table string, url string) (DB[T], error) {
+	db, err := sql.Open("postgres", fmt.Sprintf("%s/%s?sslmode=disable", url, name)) // "postgresql://postgres:postgres@localhost:5432/%s?sslmode=disable"
 	if err != nil {
 		return nil, err
 	}

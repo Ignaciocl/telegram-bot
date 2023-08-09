@@ -1,9 +1,13 @@
 package dtos
 
+type Times struct {
+	StartingTime int `json:"starting_time"`
+	FinishTime   int `json:"finish_time"`
+}
+
 type Data struct {
-	Id            int      `json:"id"`
-	WantedNews    []string `json:"wanted_news"`
-	OmittedTopics []string `json:"omitted_topics"`
+	Id        int     `json:"id"`
+	FreeTimes []Times `json:"free_times"`
 }
 
 func (d Data) GetPrimaryKey() int {
@@ -25,16 +29,7 @@ type GetInformation struct {
 	ToAnswer int
 }
 
-type Schedule struct {
-	HourID    int         `json:"id"`
-	UsersInfo map[int]int `json:"users_info"`
-}
-
 type UserInfo struct {
 	UserID int
 	ChatID int
-}
-
-func (s Schedule) GetPrimaryKey() int {
-	return s.HourID
 }

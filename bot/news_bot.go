@@ -1,25 +1,21 @@
 package bot
 
 import (
-	"bot-telegram/db"
-	"bot-telegram/dtos"
-	"bot-telegram/services/news"
 	"fmt"
 	teleBot "github.com/SakoDroid/telego"
+	"telegram-bot/db"
+	"telegram-bot/dtos"
 )
 
-type NewsBotInterface interface {
+type TelegramBotInterface interface {
 	Run() error
 	StartGoRoutines() error
 	StartHandlers() error
-	SendScheduledNews(hour int) error
 }
 
 type NewsBot struct {
 	TelegramBot *teleBot.Bot
 	DB          db.DB[dtos.Data]
-	ScheduleDB  db.DB[dtos.Schedule]
-	GPTService  news.Provider
 	channels    map[string]chan dtos.GetInformation
 }
 

@@ -1,17 +1,15 @@
 package main
 
 import (
-	newsBot "bot-telegram/bot"
-	"bot-telegram/scheduler"
 	"fmt"
 	"os"
 	"os/signal"
 	"syscall"
-	"time"
+	"telegram-bot/bot"
 )
 
 func main() {
-	telegramNewsBot, err := newsBot.CreateNewsBot()
+	telegramBot, err := bot.CreateBot()
 	if err != nil {
 		fmt.Printf("error creating News Bot: %v", err)
 		os.Exit(1)
@@ -27,24 +25,21 @@ func main() {
 		syscall.SIGQUIT,
 	)
 
-	err = telegramNewsBot.Run()
+	err = telegramBot.Run()
 	if err != nil {
 		fmt.Printf("error running bot: %v", err)
 		os.Exit(1)
 	}
 
-	if err = telegramNewsBot.StartGoRoutines(); err != nil {
+	if err = telegramBot.StartGoRoutines(); err != nil {
 		fmt.Printf("error starting goroutines: %v\n", err)
 		os.Exit(1)
 	}
 
-	if err = telegramNewsBot.StartHandlers(); err != nil {
+	if err = telegramBot.StartHandlers(); err != nil {
 		fmt.Printf("error starting handlers: %v\n", err)
 		os.Exit(1)
 	}
-
-	newsScheduler := scheduler.NewNewsScheduler(telegramNewsBot, 3*time.Minute)
-	newsScheduler.Run()
 
 	fmt.Println("Waiting for sigterm")
 
