@@ -4,7 +4,6 @@ import (
 	"fmt"
 	teleBot "github.com/SakoDroid/telego"
 	telegramConfig "github.com/SakoDroid/telego/configs"
-	env "github.com/joho/godotenv"
 	log "github.com/sirupsen/logrus"
 	"os"
 	"telegram-bot/db"
@@ -20,13 +19,7 @@ const (
 // CreateBot returns a NewsBot with all the services it requires initialized
 func CreateBot() (TelegramBotInterface, error) {
 
-	if err := env.Load(); err != nil {
-		fmt.Println("error loading environment variables")
-		return nil, err
-	}
-
-	//url := os.Getenv(dbUrl)
-	url := "postgresql://postgres:postgres@postgres:5432/"
+	url := os.Getenv(dbUrl)
 	if url == "" {
 		return nil, fmt.Errorf("error bot url missing")
 	}
