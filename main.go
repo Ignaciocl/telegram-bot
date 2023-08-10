@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	log "github.com/sirupsen/logrus"
 	"os"
 	"os/signal"
 	"syscall"
@@ -11,11 +12,11 @@ import (
 func main() {
 	telegramBot, err := bot.CreateBot()
 	if err != nil {
-		fmt.Printf("error creating News Bot: %v", err)
+		log.Errorf("error creating telegram Bot: %v", err)
 		os.Exit(1)
 	}
 
-	fmt.Println("NewsBot initialized successfully")
+	log.Infof("telegram initialized successfully")
 
 	signalsChannel := make(chan os.Signal, 1)
 	signal.Notify(signalsChannel,

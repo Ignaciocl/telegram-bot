@@ -1,8 +1,35 @@
 services:
   postgres:
     image: postgres
+    container_name: postgres-telegram
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=postgres
+      - POSTGRES_HOST_AUTH_METHOD=trust
+      - PG_USER=postgres
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U postgres" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     ports:
       - '5432:5432'
+    networks:
+      - test-bot
+  bot:
+    container_name: bot
+    build:
+      context: .
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - '8443:8443'
+    volumes:
+      - './:/app'
+    networks:
+      - test-bot
+
+networks:
+  test-bot:
+    name: 'test-bot'

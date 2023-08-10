@@ -8,4 +8,5 @@ type DB[T Storable] interface {
 	Update(obj T)
 	Delete(key int) T
 	Get(key int) (T, error)
+	GetAll() ([]T, error)
 }

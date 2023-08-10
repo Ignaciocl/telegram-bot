@@ -5,6 +5,7 @@ import (
 	teleBot "github.com/SakoDroid/telego"
 	telegramConfig "github.com/SakoDroid/telego/configs"
 	env "github.com/joho/godotenv"
+	log "github.com/sirupsen/logrus"
 	"os"
 	"telegram-bot/db"
 	"telegram-bot/dtos"
@@ -12,8 +13,8 @@ import (
 
 const (
 	botTokenEnv = "TELEGRAM_BOT_TOKEN"
-	timeout     = 1
 	tableName   = "pepe"
+	dbUrl       = "DB_URL"
 )
 
 // CreateBot returns a NewsBot with all the services it requires initialized
@@ -24,7 +25,13 @@ func CreateBot() (TelegramBotInterface, error) {
 		return nil, err
 	}
 
-	database, err := db.CreateDB[dtos.Data]("postgres", tableName, os.Getenv("DB_URL"))
+	//url := os.Getenv(dbUrl)
+	url := "postgresql://postgres:postgres@postgres:5432/"
+	if url == "" {
+		return nil, fmt.Errorf("error bot url missing")
+	}
+	log.Infof("url is: %s", url)
+	database, err := db.CreateDB[dtos.Data](tableName, url)
 	if err != nil {
 		return nil, fmt.Errorf("error creating DB: %v", err)
 	}
