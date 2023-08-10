@@ -70,7 +70,7 @@ func (p *postgresDb[T]) Get(key int) (T, error) {
 }
 
 func CreateDB[T Storable](table string, url string) (DB[T], error) {
-	db, err := sql.Open("postgres", fmt.Sprintf("%spostgres?sslmode=disable", url))
+	db, err := sql.Open("postgres", fmt.Sprintf("%s?sslmode=disable", url))
 
 	if err != nil {
 		return nil, err
