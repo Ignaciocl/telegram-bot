@@ -6,6 +6,7 @@ import (
 	log "github.com/sirupsen/logrus"
 	"strings"
 	"telegram-bot/dtos"
+	"telegram-bot/utils"
 	"time"
 )
 
@@ -87,6 +88,34 @@ func (nb *NewsBot) StartHandlers() error {
 		nb.DB.Update(p)
 		bot.SendMessage(u.Message.Chat.Id, fmt.Sprintf("NAME CHANGED TO %s", p.Name), "", 0, false, false)
 	}, "all")
+	bot.AddHandler("/removeDay", func(u *objs.Update) {
+		data := strings.Split(u.Message.Text, " ")
+		if len(data) < 2 {
+			bot.SendMessage(u.Message.Chat.Id, fmt.Sprintf("message received is: %s\nCouldn't change name", u.Message.Text), "", 0, false, false)
+			return
+		}
+		day := strings.ToLower(data[1])
+		if !utils.Contains(day, []string{"lunes", "martes", "miercoles", "jueves", "viernes", "sabado", "domingo"}) {
+			bot.SendMessage(u.Message.Chat.Id, fmt.Sprintf("tiene que ser un dia de la semana, recibido: %s", u.Message.Text), "", 0, false, false)
+			return
+		}
+		p, _ := nb.DB.Get(u.Message.From.Id)
+		times := make([]dtos.Times, 0)
+		found := false
+		for _, k := range p.FreeTimes {
+			if k.Day == day {
+				found = true
+			} else {
+				times = append(times, k)
+			}
+		}
+		if found {
+			nb.DB.Update(p)
+			bot.SendMessage(u.Message.Chat.Id, fmt.Sprintf("Se saco el dia: %s\n", day), "", 0, false, false)
+		} else {
+			bot.SendMessage(u.Message.Chat.Id, fmt.Sprintf("No tenias el dia: %s\n", day), "", 0, false, false)
+		}
+	})
 	//bot.AddHandler(".*", func(u *objs.Update) {
 	//	fmt.Println("pepe")
 	//	bot.SendMessage(u.Message.Chat.Id, fmt.Sprintf("you sent: %s", u.Message.Text), "", u.Message.MessageId, false, false)
