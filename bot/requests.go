@@ -58,21 +58,23 @@ func addCategoryForChat(info dtos.GetInformation, db db.DB[dtos.Data], bot *tele
 	kb := bot.CreateInlineKeyboard()
 	counter := 1
 	for k := range TimezoneMap {
-		kb.AddCallbackButtonHandler(k, k, counter%len(TimezoneMap)+1, func(update *objs.Update) {
-			d, err := db.Get(info.Id)
-			key := update.CallbackQuery.Data
+		kb.AddCallbackButtonHandler(k, k, counter%len(TimezoneMap)+1, func(u *objs.Update) {
+			id := u.Message.From.Id
+			toAnswer := u.Message.Chat.Id
+			d, err := db.Get(id)
+			key := u.CallbackQuery.Data
 			if err != nil {
 				log.Errorf("couldn't get info for user, err: %v", err)
 				return
 			}
 			if key == d.Timezone {
-				bot.SendMessage(info.ToAnswer, fmt.Sprintf("Ya tenias el timezone de: %s, apreta /start para seguir", key), "", 0, false, false)
+				bot.SendMessage(toAnswer, fmt.Sprintf("Ya tenias el timezone de: %s, apreta /start para seguir", key), "", 0, false, false)
 			} else {
 				d.Timezone = k
 				db.Update(d)
 
 				message := fmt.Sprintf("ya tenes %s como region horaria. Apreta /start para seguir", k)
-				bot.SendMessage(info.ToAnswer, message, "", 0, false, false)
+				bot.SendMessage(toAnswer, message, "", 0, false, false)
 			}
 		})
 	}
@@ -89,14 +91,14 @@ func addTimeAvailability(c chan dtos.GetInformation, database db.DB[dtos.Data], 
 func chooseDay(info dtos.GetInformation, db db.DB[dtos.Data], bot *teleBot.Bot) {
 	kb := bot.CreateInlineKeyboard()
 	for i, k := range PossibleDays {
-		kb.AddCallbackButtonHandler(k, k, i%4+1, func(update *objs.Update) {
-			d, err := db.Get(info.Id)
-			key := update.CallbackQuery.Data
+		kb.AddCallbackButtonHandler(k, k, i%4+1, func(u *objs.Update) {
+			d, err := db.Get(u.Message.From.Id)
+			key := u.CallbackQuery.Data
 			if err != nil {
 				log.Errorf("couldn't get info for user, err: %v", err)
 				return
 			}
-			addTimeToDay(key, d.FreeTimes, info.ToAnswer, bot, db, d)
+			addTimeToDay(key, d.FreeTimes, u.Message.Chat.Id, bot, db, d)
 		})
 	}
 	bot.AdvancedMode().ASendMessage(info.ToAnswer, fmt.Sprintf("Elegi el dia que quieras modificar o apreta /start para volver"), "", 0, false, false, nil, false, false, kb)
@@ -118,12 +120,14 @@ func addTimeToDay(day string, currentTimes []dtos.Times, toAnswer int, bot *tele
 	kb := bot.CreateInlineKeyboard()
 
 	for i := 1; i < 25; i += 1 {
-		kb.AddCallbackButtonHandler(strconv.Itoa(i), strconv.Itoa(i), int(math.Floor(float64(i/6))+1), func(update *objs.Update) {
-			from, _ := strconv.Atoi(update.CallbackQuery.Data)
+		kb.AddCallbackButtonHandler(strconv.Itoa(i), strconv.Itoa(i), int(math.Floor(float64(i/6))+1), func(u *objs.Update) {
+			toAnswer := u.Message.Chat.Id
+			from, _ := strconv.Atoi(u.CallbackQuery.Data)
 			innerKb := bot.CreateInlineKeyboard()
 			for i := from; i < 25; i += 1 {
-				innerKb.AddCallbackButtonHandler(strconv.Itoa(i), strconv.Itoa(i), int(math.Floor(float64(i/6))+1), func(update *objs.Update) {
-					to, _ := strconv.Atoi(update.CallbackQuery.Data)
+				innerKb.AddCallbackButtonHandler(strconv.Itoa(i), strconv.Itoa(i), int(math.Floor(float64(i/6))+1), func(u *objs.Update) {
+					toAnswer := u.Message.Chat.Id
+					to, _ := strconv.Atoi(u.CallbackQuery.Data)
 					toAdd := []dtos.Time{
 						{
 							StartingTime: from,

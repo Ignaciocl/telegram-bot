@@ -4,6 +4,7 @@ import (
 	"fmt"
 	objs "github.com/SakoDroid/telego/objects"
 	log "github.com/sirupsen/logrus"
+	"strings"
 	"telegram-bot/dtos"
 	"time"
 )
@@ -66,6 +67,25 @@ func (nb *NewsBot) StartHandlers() error {
 			Id:       u.Message.From.Id,
 			ToAnswer: u.Message.Chat.Id,
 		}
+	}, "all")
+	bot.AddHandler("/allSubscribed", func(u *objs.Update) {
+		d, _ := nb.DB.GetAll()
+		names := make([]string, 0)
+		for _, i := range d {
+			names = append(names, i.Name)
+		}
+		bot.SendMessage(u.Message.Chat.Id, fmt.Sprintf("people is: %s", strings.Join(names, ", ")), "", 0, false, false)
+	}, "all")
+	bot.AddHandler("/changeName", func(u *objs.Update) {
+		data := strings.Split(u.Message.Text, " ")
+		if len(data) < 2 {
+			bot.SendMessage(u.Message.Chat.Id, fmt.Sprintf("message received is: %s\nCouldn't change name", u.Message.Text), "", 0, false, false)
+			return
+		}
+		p, _ := nb.DB.Get(u.Message.From.Id)
+		p.Name = data[1]
+		nb.DB.Update(p)
+		bot.SendMessage(u.Message.Chat.Id, fmt.Sprintf("NAME CHANGED TO %s", p.Name), "", 0, false, false)
 	}, "all")
 	//bot.AddHandler(".*", func(u *objs.Update) {
 	//	fmt.Println("pepe")
