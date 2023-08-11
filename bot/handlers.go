@@ -52,7 +52,7 @@ func (nb *NewsBot) StartHandlers() error {
 		nb.DB.Insert(di)
 
 		//Sends the message to the chat that the message has been received from. The message will be a reply to the received message.
-		_, err := bot.AdvancedMode().ASendMessage(u.Message.Chat.Id, "Selecciona una de las opciones de abajo (se asume que tu region es argentina).", "", u.Message.MessageId, false, false, nil, false, false, kb)
+		_, err := bot.AdvancedMode().ASendMessage(u.Message.Chat.Id, fmt.Sprintf("Selecciona una de las opciones de abajo (se asume que tu region es argentina)\nel nombre tuyo asignado es %s.", di.Name), "", u.Message.MessageId, false, false, nil, false, false, kb)
 		if err != nil {
 			fmt.Printf("error happened, %v\n", err)
 		}
