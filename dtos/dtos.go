@@ -52,7 +52,7 @@ func (d Data) String() string {
 
 func GetItemsMessage(message string, dates []Times) string {
 	formattedMessage := fmt.Sprintf("%s:", message)
-	datesFormatted := make([]string, len(dates))
+	datesFormatted := make([]string, 0)
 	for _, k := range dates {
 		day := k.Day
 		times := k.TimesOfDay
